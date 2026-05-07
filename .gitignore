@@ -1,1 +1,7 @@
 .idea
+.env.prod
+*.pem
+*.key
+node_modules/
+frontend/.next/
+backend/target/
