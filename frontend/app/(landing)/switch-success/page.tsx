@@ -1,6 +1,6 @@
 "use client"
 
-import Container from '@/components/Container'
+import Container from '@/components/container'
 import { useAuthGuard } from '@/lib/auth/use-auth'
 import { Button } from '@mantine/core'
 import Link from 'next/link'

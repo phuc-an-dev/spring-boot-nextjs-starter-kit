@@ -7,7 +7,7 @@ import { useAuthGuard } from "@/lib/auth/use-auth";
 import { FaFacebook, FaGithub, FaGoogle } from "react-icons/fa";
 import { format } from "date-fns";
 import Loading from "@/components/loading";
-import Container from "@/components/Container";
+import Container from "@/components/container";
 import UpdateProfileImageForm from "./components/update-profile-image-form";
 import { Divider } from "@mantine/core";
 

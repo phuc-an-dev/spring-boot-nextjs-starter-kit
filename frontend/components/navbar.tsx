@@ -3,9 +3,9 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import React from "react";
-import Logo from "./Logo";
+import Logo from "./logo";
 import ModeToggle from "./ModeToggle";
-import Container from "./Container";
+import Container from "./container";
 import { useAuthGuard } from "@/lib/auth/use-auth";
 import { UserNav } from "./user-nav";
 import AdminNav from "./admin-nav";

@@ -1,5 +1,5 @@
 "use client";
-import Container from "@/components/Container";
+import Container from "@/components/container";
 import httpClient from "@/lib/httpClient";
 import { PagedResponse } from "@/models/http/PagedResponse";
 import { UserResponse } from "@/models/user/UserResponse";

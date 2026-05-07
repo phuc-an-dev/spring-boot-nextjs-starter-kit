@@ -1,7 +1,7 @@
 "use client"
 
-import Logo from '@/components/Logo';
-import Navbar from '@/components/Navbar';
+import Logo from '@/components/logo';
+import Navbar from '@/components/navbar';
 import { useSubscribeToPushNotifications } from '@/lib/hooks/useSubscribeToPushNotifications';
 import { AppShell, Burger, Button, Group } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';

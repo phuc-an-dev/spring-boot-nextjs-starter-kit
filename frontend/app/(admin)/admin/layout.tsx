@@ -1,7 +1,7 @@
 "use client";
 
 import Loading from "@/components/loading";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/navbar";
 import PermissionGuard from "@/components/permission-guard";
 import RoleGuard from "@/components/role-guard";
 import { useAuthGuard } from "@/lib/auth/use-auth";

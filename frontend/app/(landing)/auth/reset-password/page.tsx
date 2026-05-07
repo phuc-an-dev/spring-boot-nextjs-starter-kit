@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react";
+import React, { Suspense } from "react";
 import { ResetPasswordForm } from "./components/ResetPasswordForm";
 
 export default function ResetPasswordPage() {
@@ -11,7 +11,9 @@ export default function ResetPasswordPage() {
           Enter your new password
         </h1>
       </div>
-      <ResetPasswordForm />
+      <Suspense>
+        <ResetPasswordForm />
+      </Suspense>
     </div>
   );
 }
