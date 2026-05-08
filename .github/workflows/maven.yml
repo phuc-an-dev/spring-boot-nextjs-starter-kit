@@ -37,11 +37,10 @@ jobs:
       - name: Build and test with Maven
         run: mvn -B package --file ./backend/pom.xml
         env:
-          DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_NAME: starter_kit_db
-          DB_USERNAME: root
-          DB_PASSWORD: password
+          SPRING_DATASOURCE_URL: "jdbc:mysql://127.0.0.1:3306/starter_kit_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false"
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: password
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
 
       - name: Update dependency graph
         uses: advanced-security/maven-dependency-submission-action@4f64ddab9d742a4806eeb588d238e4c311a8397d
