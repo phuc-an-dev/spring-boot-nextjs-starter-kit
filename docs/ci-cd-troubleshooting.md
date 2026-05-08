@@ -116,8 +116,41 @@ env:
 
 **Lý do chọn:** MySQL service container miễn phí, dùng đúng MySQL 8.4 (giống production), không thay đổi logic test. H2 bị loại vì dialect khác có thể che giấu SQL bugs. Testcontainers Cloud bị loại vì tốn phí.
 
+### Kết quả lần 1
+Workflow chạy được, nhưng tests vẫn fail (xem Issue #7 bên dưới).
+
+---
+
+## 7. `contextLoads` fail lần 2 — Spring profile override env vars
+
+### Triệu chứng
+Tests fail với cùng lỗi `Failed to load ApplicationContext` dù đã thêm MySQL service container và env vars `DB_HOST`/`DB_PORT`.
+
+### Nguyên nhân
+`application.properties` có `spring.profiles.active=dev` → Spring tự động load `application-dev.properties`. File này có hardcoded values:
+
+```properties
+app.database.host=localhost
+app.database.port=3307
+```
+
+**Spring property resolution order:** profile-specific properties (`application-dev.properties`) có độ ưu tiên cao hơn env vars `DB_HOST`/`DB_PORT`. Vì vậy dù maven.yml set `DB_HOST=127.0.0.1, DB_PORT=3306`, Spring vẫn dùng `localhost:3307` từ dev profile → kết nối thất bại.
+
+### Giải pháp chọn
+Thay `DB_*` env vars bằng `SPRING_DATASOURCE_*` — loại env vars này có độ ưu tiên cao nhất trong Spring Boot, override mọi properties file kể cả profile-specific:
+
+```yaml
+env:
+  SPRING_DATASOURCE_URL: "jdbc:mysql://127.0.0.1:3306/starter_kit_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false"
+  SPRING_DATASOURCE_USERNAME: root
+  SPRING_DATASOURCE_PASSWORD: password
+  SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+```
+
+**Lý do chọn:** `SPRING_DATASOURCE_*` là [externalized configuration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config) ở mức cao nhất — không bị bất kỳ properties file nào override. Đây là cách Spring Boot intended cho CI/CD environments.
+
 ### Kết quả
-`Java CI with Maven` workflow pass trong 1m 22s. ✅
+`Java CI with Maven` workflow pass. ✅
 
 ---
 
