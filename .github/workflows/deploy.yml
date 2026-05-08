@@ -3,14 +3,22 @@ name: Deploy to EC2
 on:
   push:
     branches: [master]
+  workflow_run:
+    workflows: ["Java CI with Maven"]
+    types: [completed]
+    branches: [master]
 
 permissions:
   id-token: write
   contents: read
 
+env:
+  AWS_REGION: ap-southeast-1
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -19,7 +27,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to ECR
         id: login-ecr
@@ -28,21 +36,23 @@ jobs:
       - name: Build and push backend
         run: |
           docker buildx build --platform linux/amd64 \
-            -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/starter-backend:latest \
+            -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/starter-backend:latest \
+            -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/starter-backend:${{ github.sha }} \
             --push ./backend
 
       - name: Build and push frontend
         run: |
           docker buildx build --platform linux/amd64 \
             --build-arg NEXT_PUBLIC_BASE_URL=https://anphuc.xyz \
-            -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/starter-frontend:latest \
+            -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/starter-frontend:latest \
+            -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/starter-frontend:${{ github.sha }} \
             --push ./frontend
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd ~/app && bash infra/nginx/deploy.sh
