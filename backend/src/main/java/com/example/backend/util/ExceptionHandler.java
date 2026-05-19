@@ -37,36 +37,72 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
       }
     });
 
-    HttpErrorResponse response = HttpErrorResponse.of("Unprocessable entity", 422, errors, generalErrors);
+    ErrorApiResponse<?> response = new ErrorApiResponse<>(
+        "Unprocessable entity",
+        HttpStatus.UNPROCESSABLE_ENTITY.value(),
+        ErrorCode.VALIDATION_ERROR.getCode()
+    );
+    response.setErrors(errors);
+    response.setGeneralErrors(generalErrors);
 
     return new ResponseEntity<>(response, HttpStatus.UNPROCESSABLE_ENTITY);
   }
 
   @org.springframework.web.bind.annotation.ExceptionHandler(ApiException.class)
-  public ResponseEntity<HttpErrorResponse> handleException(ApiException e) {
+  public ResponseEntity<ErrorApiResponse<?>> handleApiException(ApiException e) {
     log.info("Handling ApiException: {}", e.getMessage());
-    var response = HttpErrorResponse.of(e.getMessage(), e.getStatus(), e.getErrors(), null);
+    var response = new ErrorApiResponse<>(
+        e.getMessage(),
+        e.getStatus(),
+        errorCodeForStatus(e.getStatus())
+    );
+    response.setErrors(e.getErrors());
     return new ResponseEntity<>(response, HttpStatus.valueOf(e.getStatus()));
   }
 
   @org.springframework.web.bind.annotation.ExceptionHandler(BadCredentialsException.class)
-  public ResponseEntity<HttpErrorResponse> handleException(BadCredentialsException e) {
+  public ResponseEntity<ErrorApiResponse<?>> handleException(BadCredentialsException e) {
     log.info("Handling BadCredentialsException: {}", e.getMessage());
-    var response = HttpErrorResponse.of(e.getMessage(), 401, null, null);
-    return new ResponseEntity<>(response, HttpStatus.valueOf(401));
+    var response = new ErrorApiResponse<>(
+        e.getMessage(),
+        HttpStatus.UNAUTHORIZED.value(),
+        ErrorCode.UNAUTHORIZED.getCode()
+    );
+    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
   }
 
   @org.springframework.web.bind.annotation.ExceptionHandler(AuthorizationDeniedException.class)
-  public ResponseEntity<HttpErrorResponse> handleException(AuthorizationDeniedException e) {
+  public ResponseEntity<ErrorApiResponse<?>> handleException(AuthorizationDeniedException e) {
     log.info("Handling AuthorizationDeniedException: {}", e.getMessage());
-    var response = HttpErrorResponse.of(e.getMessage(), 403, null, null);
-    return new ResponseEntity<>(response, HttpStatus.valueOf(403));
+    var response = new ErrorApiResponse<>(
+        e.getMessage(),
+        HttpStatus.FORBIDDEN.value(),
+        ErrorCode.PERMISSION_DENIED.getCode()
+    );
+    return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
   }
 
   @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
-  public ResponseEntity<HttpErrorResponse> handleException(Exception e) {
+  public ResponseEntity<ErrorApiResponse<?>> handleException(Exception e) {
     log.error("Unhandled exception", e);
-    var response = HttpErrorResponse.of("Unexpected error", 500);
+    var response = new ErrorApiResponse<>(
+        ErrorCode.UNKNOWN_ERROR.getMessage(),
+        ErrorCode.UNKNOWN_ERROR.getHttpStatus().value(),
+        ErrorCode.UNKNOWN_ERROR.getCode()
+    );
     return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  private int errorCodeForStatus(int status) {
+    if (status == HttpStatus.UNAUTHORIZED.value()) {
+      return ErrorCode.UNAUTHORIZED.getCode();
+    }
+    if (status == HttpStatus.FORBIDDEN.value()) {
+      return ErrorCode.PERMISSION_DENIED.getCode();
+    }
+    if (status == HttpStatus.NOT_FOUND.value()) {
+      return ErrorCode.ENTITY_NOT_FOUND.getCode();
+    }
+    return ErrorCode.UNKNOWN_ERROR.getCode();
   }
 }
