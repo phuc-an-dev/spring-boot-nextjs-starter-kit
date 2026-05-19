@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "copy-types": "copyfiles -f ../backend/target/typescript-generator/backend.ts ./models/",
-    "generate-types": "cd ../backend && mvnw.cmd compile && mvnw.cmd typescript-generator:generate",
+    "generate-types": "cd ../backend && /bin/sh ./mvnw compile && /bin/sh ./mvnw typescript-generator:generate",
     "update-types": "npm run generate-types && npm run copy-types",
     "lint": "next lint"
   },
@@ -59,6 +59,8 @@
     "@types/react-dom": "^18",
     "@types/serviceworker": "^0.0.107",
     "copyfiles": "^2.4.1",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.21",
     "openapi-typescript": "^7.4.4",
     "postcss": "^8.4.49",
     "postcss-preset-mantine": "^1.17.0",

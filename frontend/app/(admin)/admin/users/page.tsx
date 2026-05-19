@@ -8,7 +8,7 @@ import { Button, Pagination, Table } from "@mantine/core";
 import React from "react";
 import useSWR from "swr";
 
-export default function page() {
+export default function UsersPage() {
   const [page, setPage] = React.useState(1);
 
   const { data } = useSWR(`/api/admin/users?page=${page}`, () => {

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-12-30 16:38:59.
+// Generated using typescript-generator version 3.2.1263 on 2026-05-20 00:06:28.
 
 export interface Notification {
     id: number;
@@ -39,14 +39,14 @@ export interface SubscriptionRequest {
 }
 
 export interface NotificationSubscribersByDate {
-    date: string;
     subscribers: number;
+    date: string;
 }
 
 export interface NotificationsByDate {
-    date: string;
-    sent: number;
     delivered: number;
+    sent: number;
+    date: string;
 }
 
 export interface UploadedFile extends AbstractEntity {
@@ -86,8 +86,12 @@ export interface UserConnectedAccount extends AbstractEntity {
 
 export interface VerificationCode extends AbstractEntity {
     code: string;
+    expiresAt: Date;
+    consumedAt: Date;
     emailSent: boolean;
     user: User;
+    consumed: boolean;
+    expired: boolean;
 }
 
 export interface CreateUserRequest {
@@ -139,23 +143,23 @@ export interface GrantedAuthority extends Serializable {
 }
 
 export interface UserDetails extends Serializable {
-    enabled: boolean;
+    accountNonExpired: boolean;
+    accountNonLocked: boolean;
+    credentialsNonExpired: boolean;
+    authorities: GrantedAuthority[];
     username: string;
     password: string;
-    credentialsNonExpired: boolean;
-    accountNonExpired: boolean;
-    authorities: GrantedAuthority[];
-    accountNonLocked: boolean;
+    enabled: boolean;
 }
 
 export interface MultipartFile extends InputStreamSource {
+    originalFilename: string;
     contentType: string;
     name: string;
     bytes: number[];
     empty: boolean;
     resource: Resource;
     size: number;
-    originalFilename: string;
 }
 
 export interface RedirectView extends AbstractUrlBasedView, SmartView {
@@ -192,13 +196,13 @@ export interface Serializable {
 }
 
 export interface Resource extends InputStreamSource {
+    filename: string;
+    description: string;
+    uri: URI;
     open: boolean;
     file: File;
     readable: boolean;
     url: URL;
-    description: string;
-    uri: URI;
-    filename: string;
 }
 
 export interface InputStream extends Closeable {
@@ -209,27 +213,21 @@ export interface InputStreamSource {
 }
 
 export interface ApplicationContext extends EnvironmentCapable, ListableBeanFactory, HierarchicalBeanFactory, MessageSource, ApplicationEventPublisher, ResourcePatternResolver {
+    applicationName: string;
+    autowireCapableBeanFactory: AutowireCapableBeanFactory;
+    startupDate: number;
     parent: ApplicationContext;
     id: string;
     displayName: string;
-    startupDate: number;
-    autowireCapableBeanFactory: AutowireCapableBeanFactory;
-    applicationName: string;
 }
 
 export interface ServletContext {
-    classLoader: ClassLoader;
-    majorVersion: number;
-    minorVersion: number;
-    attributeNames: Enumeration<string>;
-    responseCharacterEncoding: string;
-    requestCharacterEncoding: string;
-    contextPath: string;
+    effectiveMajorVersion: number;
+    effectiveMinorVersion: number;
     /**
      * @deprecated
      */
     servlets: Enumeration<Servlet>;
-    sessionTimeout: number;
     /**
      * @deprecated
      */
@@ -237,15 +235,21 @@ export interface ServletContext {
     serverInfo: string;
     initParameterNames: Enumeration<string>;
     servletContextName: string;
-    effectiveMajorVersion: number;
-    effectiveMinorVersion: number;
     servletRegistrations: { [index: string]: ServletRegistration };
     filterRegistrations: { [index: string]: FilterRegistration };
     sessionCookieConfig: SessionCookieConfig;
-    jspConfigDescriptor: JspConfigDescriptor;
-    virtualServerName: string;
     defaultSessionTrackingModes: SessionTrackingMode[];
     effectiveSessionTrackingModes: SessionTrackingMode[];
+    jspConfigDescriptor: JspConfigDescriptor;
+    virtualServerName: string;
+    requestCharacterEncoding: string;
+    responseCharacterEncoding: string;
+    contextPath: string;
+    sessionTimeout: number;
+    attributeNames: Enumeration<string>;
+    classLoader: ClassLoader;
+    majorVersion: number;
+    minorVersion: number;
 }
 
 export interface AbstractUrlBasedView extends AbstractView, InitializingBean {
@@ -256,13 +260,13 @@ export interface SmartView extends View {
     redirectView: boolean;
 }
 
+export interface URI extends Comparable<URI>, Serializable {
+}
+
 export interface File extends Serializable, Comparable<File> {
 }
 
 export interface URL extends Serializable {
-}
-
-export interface URI extends Comparable<URI>, Serializable {
 }
 
 export interface Closeable extends AutoCloseable {
@@ -308,8 +312,8 @@ export interface Enumeration<E> {
 }
 
 export interface Servlet {
-    servletInfo: string;
     servletConfig: ServletConfig;
+    servletInfo: string;
 }
 
 export interface ServletRegistration extends Registration {
@@ -323,13 +327,13 @@ export interface FilterRegistration extends Registration {
 }
 
 export interface SessionCookieConfig {
-    name: string;
-    path: string;
-    comment: string;
-    httpOnly: boolean;
-    secure: boolean;
     domain: string;
+    secure: boolean;
     maxAge: number;
+    httpOnly: boolean;
+    path: string;
+    name: string;
+    comment: string;
 }
 
 export interface JspConfigDescriptor {
@@ -363,30 +367,30 @@ export interface ResourceLoader {
 }
 
 export interface ServletConfig {
+    initParameterNames: Enumeration<string>;
     servletContext: ServletContext;
     servletName: string;
-    initParameterNames: Enumeration<string>;
 }
 
 export interface Registration {
+    initParameters: { [index: string]: string };
     name: string;
     className: string;
-    initParameters: { [index: string]: string };
 }
 
 export interface JspPropertyGroupDescriptor {
-    buffer: string;
-    trimDirectiveWhitespaces: string;
-    errorOnUndeclaredNamespace: string;
-    deferredSyntaxAllowedAsLiteral: string;
-    pageEncoding: string;
     urlPatterns: string[];
     elIgnored: string;
-    includeCodas: string[];
-    includePreludes: string[];
+    pageEncoding: string;
     scriptingInvalid: string;
-    defaultContentType: string;
     isXml: string;
+    includePreludes: string[];
+    includeCodas: string[];
+    deferredSyntaxAllowedAsLiteral: string;
+    trimDirectiveWhitespaces: string;
+    defaultContentType: string;
+    errorOnUndeclaredNamespace: string;
+    buffer: string;
 }
 
 export interface TaglibDescriptor {
@@ -464,6 +468,14 @@ export class RestApplicationClient {
      */
     getSession(): RestResponse<UserResponse> {
         return this.httpClient.request({ method: "GET", url: uriEncoding`api/auth/me` });
+    }
+
+    /**
+     * HTTP POST /api/auth/refresh
+     * Java method: com.example.backend.auth.controller.AuthController.refresh
+     */
+    refresh(): RestResponse<any> {
+        return this.httpClient.request({ method: "POST", url: uriEncoding`api/auth/refresh` });
     }
 
     /**
@@ -571,11 +583,7 @@ export class RestApplicationClient {
     }
 }
 
-export type RestResponse<R> = Promise<{
-    data: R;
-    status: number;
-    statusText: string;
-}>;
+export type RestResponse<R> = Promise<R>;
 
 export type RequestEvent = "ONLOAD" | "USER_INTERACTION";
 

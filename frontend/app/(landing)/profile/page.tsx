@@ -48,7 +48,7 @@ export default function ProfilePage() {
         <h2 className="text-lg font-semibold mb-2">Connected Accounts</h2>
         <div className="flex flex-col gap-y-2">
           {user?.connectedAccounts.map((account) => (
-            <div className="flex w-full max-w-screen-sm justify-between">
+            <div key={account.provider} className="flex w-full max-w-screen-sm justify-between">
               <div className="flex items-center gap-x-2">
                 {getProviderIcon(account.provider)}
                 <span className="font-bold">{account.provider}</span>

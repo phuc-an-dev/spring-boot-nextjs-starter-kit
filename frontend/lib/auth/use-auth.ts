@@ -1,15 +1,27 @@
 import useSWR from "swr";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import httpClient, { restClient } from "../httpClient";
+import { restClient } from "../httpClient";
 import { HttpErrorResponse } from "@/models/http/HttpErrorResponse";
-import { UserResponse } from "@/models/user/UserResponse";
-import { LoginRequest } from "@/models/backend";
+import { LoginRequest, UserResponse } from "@/models/backend";
 
 interface AuthProps {
   middleware?: "auth" | "guest";
   redirectIfAuthenticated?: string;
 }
+
+const fetchCurrentUser = async (): Promise<UserResponse> => {
+  try {
+    return await restClient.getSession();
+  } catch (error: any) {
+    if (error?.response?.status !== 401) {
+      throw error;
+    }
+
+    await restClient.refresh();
+    return await restClient.getSession();
+  }
+};
 
 export const useAuthGuard = ({
   middleware,
@@ -21,9 +33,7 @@ export const useAuthGuard = ({
     data: user,
     error,
     mutate,
-  } = useSWR("/api/auth/me", () =>
-    httpClient.get<UserResponse>("/api/auth/me").then((res) => res.data)
-  );
+  } = useSWR("/api/auth/me", fetchCurrentUser);
 
   const login = async ({
     onError,
@@ -34,7 +44,7 @@ export const useAuthGuard = ({
   }) => {
     onError(undefined);
     // await csrf();
-    restClient.login(props)
+    return restClient.login(props)
       .then(() => mutate())
       .catch((err) => {
         const errors = err.response.data as HttpErrorResponse;
@@ -48,7 +58,7 @@ export const useAuthGuard = ({
 
   const logout = async () => {
     if (!error) {
-      await restClient.logout().then(() => mutate());
+      await restClient.logout().then(() => mutate(undefined, false));
     }
 
     window.location.pathname = "/auth/login";

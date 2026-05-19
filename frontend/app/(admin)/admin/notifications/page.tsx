@@ -9,7 +9,7 @@ import { useForm } from "@mantine/form";
 import { LineChart } from "@mantine/charts";
 import useSWR from "swr";
 
-export default function page() {
+export default function NotificationsPage() {
   const form = useForm({
     initialValues: {
       message: "",
@@ -71,7 +71,7 @@ export default function page() {
         <LineChart
           className="mt-4"
           h={300}
-          data={notificationDeliveryData?.data || []}
+          data={notificationDeliveryData || []}
           dataKey="date"
           series={[
             { name: "sent", color: "indigo.6" },
@@ -87,7 +87,7 @@ export default function page() {
         <LineChart
           className="mt-4"
           h={300}
-          data={subscribersData?.data || []}
+          data={subscribersData || []}
           dataKey="date"
           series={[
             { name: "subscribers", color: "indigo.6" },

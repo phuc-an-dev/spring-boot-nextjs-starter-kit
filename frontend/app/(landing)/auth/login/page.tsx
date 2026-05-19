@@ -17,7 +17,7 @@ export default function LoginPage() {
       <UserAuthForm />
 
       <p className="flex justify-center gap-x-2">
-        Don't have an account?
+        Don&apos;t have an account?
         <Link href="/auth/register" className="underline">
           Register
         </Link>

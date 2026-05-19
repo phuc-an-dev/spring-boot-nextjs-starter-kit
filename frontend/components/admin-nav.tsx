@@ -1,27 +1,22 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import RoleGuard from "./role-guard";
 import { Role } from "@/models/user/UserResponse";
-import { Button, Menu, MenuItem } from "@mantine/core";
+import { Button } from "@mantine/core";
 
 export default function AdminNav() {
   return (
     <RoleGuard rolesAllowed={[Role.ADMIN]}>
-      <Menu>
-        <Menu.Target>
-          <Button variant="subtle" className="relative mx-2">
-            Admin
-          </Button>
-        </Menu.Target>
-        <Menu.Dropdown className="w-56">
-          <MenuItem>
-            <Link href="/admin/users">Users</Link>
-          </MenuItem>
-          <MenuItem>
-            <Link href="/admin/notifications">Notifications</Link>
-          </MenuItem>
-        </Menu.Dropdown>
-      </Menu>
+      <div className="flex items-center gap-1">
+        <Link href="/admin/users">
+          <Button variant="subtle" size="compact-sm">Users</Button>
+        </Link>
+        <Link href="/admin/notifications">
+          <Button variant="subtle" size="compact-sm">Notifications</Button>
+        </Link>
+      </div>
     </RoleGuard>
   );
 }

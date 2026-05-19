@@ -7,7 +7,7 @@ import { AppShell, Burger, Button, Group } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import React, { useEffect } from 'react'
 
-export default function layout({children}: {children: React.ReactNode}) {
+export default function LandingLayout({children}: {children: React.ReactNode}) {
   const [opened, { toggle}] = useDisclosure(false);
 
   const { subscribe, subscription } = useSubscribeToPushNotifications();

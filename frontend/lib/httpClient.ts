@@ -1,6 +1,25 @@
 import { RestApplicationClient } from '@/models/backend'
 import Axios from 'axios'
-require('dotenv').config()
+
+type ApiSuccessResponse<T> = {
+  success: true
+  data: T
+}
+
+type UnwrappedApiResponse<T> = T extends ApiSuccessResponse<infer D> ? D : T
+
+export function unwrapApiResponse<T>(payload: T): UnwrappedApiResponse<T> {
+  if (
+    payload &&
+    typeof payload === 'object' &&
+    'success' in payload &&
+    'data' in payload
+  ) {
+    return (payload as ApiSuccessResponse<UnwrappedApiResponse<T>>).data
+  }
+
+  return payload as UnwrappedApiResponse<T>
+}
 
 const httpClient = Axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASE_URL!, 
@@ -26,7 +45,7 @@ const backendClient =  Axios.create({
   withXSRFToken: true
 })
 backendClient.interceptors.response.use((response) => {
-  return response.data
+  return unwrapApiResponse(response.data)
 })
 
 export const restClient = new RestApplicationClient(backendClient)

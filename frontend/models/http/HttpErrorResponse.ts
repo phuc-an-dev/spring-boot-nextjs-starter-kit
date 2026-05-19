@@ -1,6 +1,8 @@
 export interface HttpErrorResponse {
+  success?: boolean;
   message: string;
   status: number;
-  errors?: Map<string, string>;
+  errorCode?: number;
+  errors?: Record<string, string>;
   generalErrors?: string[];
 }
