@@ -21,4 +21,9 @@ public class ApplicationProperties {
   private String vapidPublicKey;
   private String vapidPrivateKey;
   private String vapidSubject;
+  private String jwtSecretKey;
+  private int accessTokenExpiresIn;
+  private int refreshTokenExpiresIn;
+  private String cookieDomain;
+  private boolean cookieSecure;
 }
