@@ -23,7 +23,10 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.jobrunr.scheduling.BackgroundJobRequest;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -98,7 +101,7 @@ public class UserService {
 
   @Transactional
   public UserResponse update(UpdateUserRequest request) {
-    User user = SecurityUtil.getAuthenticatedUser();
+    User user = getAuthenticatedUser();
     user = userRepository.getReferenceById(user.getId());
     user.update(request);
     user = userRepository.save(user);
@@ -107,7 +110,7 @@ public class UserService {
 
   @Transactional
   public UserResponse updatePassword(UpdateUserPasswordRequest request) {
-    User user = SecurityUtil.getAuthenticatedUser();
+    User user = getAuthenticatedUser();
     if (user.getPassword() != null && !passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
       throw ApiException.builder().status(400).message("Wrong password").build();
     }
@@ -118,7 +121,7 @@ public class UserService {
   }
 
   public UserResponse updateProfilePicture(MultipartFile file) {
-    User user = SecurityUtil.getAuthenticatedUser();
+    User user = getAuthenticatedUser();
     UploadedFile uploadedFile = new UploadedFile(file.getOriginalFilename(), file.getSize(), user);
     try {
       String url = fileUploadService.uploadFile(
@@ -133,5 +136,14 @@ public class UserService {
     }
 
     return new UserResponse(user);
+  }
+
+  private User getAuthenticatedUser() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
+      return userRepository.findByEmail(jwt.getSubject())
+          .orElseThrow(() -> ApiException.builder().status(401).message("Authentication required").build());
+    }
+    return SecurityUtil.getAuthenticatedUser();
   }
 }
