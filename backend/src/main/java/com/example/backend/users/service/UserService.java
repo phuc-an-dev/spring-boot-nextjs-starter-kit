@@ -59,10 +59,17 @@ public class UserService {
   public void verifyEmail(String code) {
     VerificationCode verificationCode = verificationCodeRepository.findByCode(code)
         .orElseThrow(() -> ApiException.builder().status(400).message("Invalid token").build());
+    if (verificationCode.isConsumed()) {
+      throw ApiException.builder().status(400).message("Verification token has already been used").build();
+    }
+    if (verificationCode.isExpired()) {
+      throw ApiException.builder().status(400).message("Verification token is expired").build();
+    }
     User user = verificationCode.getUser();
     user.setVerified(true);
+    verificationCode.consume();
     userRepository.save(user);
-    verificationCodeRepository.delete(verificationCode);
+    verificationCodeRepository.save(verificationCode);
   }
 
   @Transactional
