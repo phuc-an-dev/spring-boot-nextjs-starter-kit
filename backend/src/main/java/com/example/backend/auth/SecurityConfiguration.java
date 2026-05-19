@@ -24,6 +24,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -47,6 +49,8 @@ public class SecurityConfiguration {
   private final ApplicationProperties applicationProperties;
   private final UserDetailsService userDetailsService;
   private final Oauth2LoginSuccessHandler oauth2LoginSuccessHandler;
+  private final CookieBearerTokenResolver cookieBearerTokenResolver;
+  private final CustomJwtDecoder customJwtDecoder;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -57,6 +61,7 @@ public class SecurityConfiguration {
           .requestMatchers(antMatcher(HttpMethod.POST, "/api/users/forgot-password")).permitAll()
           .requestMatchers(antMatcher(HttpMethod.PATCH, "/api/users/reset-password")).permitAll()
           .requestMatchers(antMatcher(HttpMethod.POST, "/api/auth/login")).permitAll()
+          .requestMatchers(antMatcher(HttpMethod.POST, "/api/auth/refresh")).permitAll()
           .requestMatchers(antMatcher(HttpMethod.GET, "/api/auth/csrf")).permitAll()
           .requestMatchers(antMatcher(HttpMethod.GET, "/api/auth/impersonate")).hasRole("ADMIN")
           .requestMatchers(antMatcher(HttpMethod.GET, "/api/auth/impersonate/exit")).hasRole("PREVIOUS_ADMINISTRATOR")
@@ -71,6 +76,14 @@ public class SecurityConfiguration {
 
     http.oauth2Login(customizer -> {
       customizer.successHandler(oauth2LoginSuccessHandler);
+    });
+
+    http.oauth2ResourceServer(customizer -> {
+      customizer.bearerTokenResolver(cookieBearerTokenResolver);
+      customizer.jwt(jwt -> {
+        jwt.decoder(customJwtDecoder);
+        jwt.jwtAuthenticationConverter(jwtAuthenticationConverter());
+      });
     });
 
     http.exceptionHandling(customizer -> {
@@ -101,6 +114,16 @@ public class SecurityConfiguration {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  private JwtAuthenticationConverter jwtAuthenticationConverter() {
+    JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+    grantedAuthoritiesConverter.setAuthorityPrefix("");
+    grantedAuthoritiesConverter.setAuthoritiesClaimName("scope");
+
+    JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+    return jwtAuthenticationConverter;
   }
 
   private CorsConfigurationSource corsConfigurationSource() {

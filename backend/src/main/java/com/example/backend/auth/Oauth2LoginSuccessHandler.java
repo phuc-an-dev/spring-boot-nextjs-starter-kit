@@ -1,6 +1,8 @@
 package com.example.backend.auth;
 
 import com.example.backend.config.ApplicationProperties;
+import com.example.backend.token.CookieService;
+import com.example.backend.token.TokenService;
 import com.example.backend.users.User;
 import com.example.backend.users.UserConnectedAccount;
 import com.example.backend.users.repository.ConnectedAccountRepository;
@@ -10,9 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -25,13 +25,19 @@ public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
   private final ConnectedAccountRepository connectedAccountRepository;
   private final ApplicationProperties applicationProperties;
   private final UserRepository userRepository;
+  private final TokenService tokenService;
+  private final CookieService cookieService;
 
   public Oauth2LoginSuccessHandler(ApplicationProperties applicationProperties,
       UserRepository userRepository,
-      ConnectedAccountRepository connectedAccountRepository) {
+      ConnectedAccountRepository connectedAccountRepository,
+      TokenService tokenService,
+      CookieService cookieService) {
     this.applicationProperties = applicationProperties;
     this.userRepository = userRepository;
     this.connectedAccountRepository = connectedAccountRepository;
+    this.tokenService = tokenService;
+    this.cookieService = cookieService;
   }
 
   @Override
@@ -66,8 +72,10 @@ public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
   }
 
   private void authenticateUser(User user, HttpServletResponse response) throws IOException {
-    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-    SecurityContextHolder.getContext().setAuthentication(token);
+    cookieService.addAuthenticationCookies(
+        tokenService.generateAccessToken(user),
+        tokenService.generateRefreshToken(user)
+    );
     response.sendRedirect(applicationProperties.getLoginSuccessUrl());
   }
 
