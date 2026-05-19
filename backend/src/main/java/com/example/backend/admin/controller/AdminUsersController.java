@@ -1,6 +1,7 @@
 package com.example.backend.admin.controller;
 
 import com.example.backend.admin.service.AdminUserService;
+import com.example.backend.auth.SecurityPermissions;
 import com.example.backend.users.data.UserResponse;
 import com.example.backend.util.Client;
 import com.example.backend.util.PagedResponse;
@@ -21,7 +22,7 @@ public class AdminUsersController {
   private final AdminUserService userService;
 
   @GetMapping
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAuthority('" + SecurityPermissions.ADMIN_USER_FILTER + "')")
   public ResponseEntity<PagedResponse<UserResponse>> admin_getUsers(
       @RequestParam(value = "page", defaultValue = "0") int page
   ) {
