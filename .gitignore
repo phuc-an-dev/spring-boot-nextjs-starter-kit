@@ -1,7 +1,15 @@
 .idea
+.vscode/
+.DS_Store
+
+.env
+.env.*
+!.env.example
 .env.prod
 *.pem
 *.key
+
 node_modules/
 frontend/.next/
 backend/target/
+infra/data/
