@@ -64,6 +64,9 @@ public class TokenService {
   }
 
   public JWTClaimsSet getClaims(String token) {
+    if (token == null || token.isBlank()) {
+      return null;
+    }
     try {
       return SignedJWT.parse(token).getJWTClaimsSet();
     } catch (ParseException e) {
@@ -72,6 +75,9 @@ public class TokenService {
   }
 
   public boolean introspect(String token) {
+    if (token == null || token.isBlank()) {
+      return false;
+    }
     try {
       SignedJWT jwt = SignedJWT.parse(token);
       Date expirationTime = jwt.getJWTClaimsSet().getExpirationTime();
