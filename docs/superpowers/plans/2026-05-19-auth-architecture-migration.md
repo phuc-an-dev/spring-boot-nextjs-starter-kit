@@ -24,13 +24,15 @@ Completed on branch `codex/auth-response-contract`.
 - Task 8 commit: `00ffc7a feat: manage backend schema with flyway`
 - Task 9 commit: `4aae0a2 feat: adapt frontend auth to jwt cookie responses`
 - Task 10 verification fix commit: `4b714a0 fix: preserve oauth2 user profile data`
+- Post-review verification fix commit: `f315b77 fix: resolve jwt users in profile service`
 
 Final verification:
 
-- Backend full test: passed, `Tests run: 18, Failures: 0, Errors: 0, Skipped: 0`.
+- Backend full test: passed, `Tests run: 19, Failures: 0, Errors: 0, Skipped: 0`.
 - Backend compile: passed.
 - Frontend typecheck, lint, and build: passed with Node `20.20.2`.
 - Manual smoke on backend port `18080`: login issued access/refresh cookies, `me` succeeded, refresh succeeded, logout cleared cookies, revoked access token was rejected.
+- Post-review high bug fixed: authenticated profile service methods now resolve JWT principals by subject/email instead of requiring a `User` principal in the security context.
 
 ---
 
